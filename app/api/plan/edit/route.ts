@@ -16,7 +16,7 @@ export async function PATCH(req: Request) {
 
   try {
     const { planId, exerciseId, updatedExercise } = await req.json();
-
+    
     if (!planId || !exerciseId || !updatedExercise) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }

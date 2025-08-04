@@ -30,6 +30,7 @@ export default function WorkoutPage() {
     ];
     return days[selectedDate.getDay()];
   };
+console.log(getCurrentDay());
 
   // Sample workout schedule based on plans
   const workoutSchedule = {
@@ -104,6 +105,7 @@ export default function WorkoutPage() {
         return "bg-gray-100 text-gray-800";
     }
   };
+console.log("selectedDate:",selectedDate);
 
   return (
     <div className="space-y-8">

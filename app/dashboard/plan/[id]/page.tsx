@@ -121,7 +121,7 @@ export default function PlanDetailPage() {
 const saveEdit = async () => {
   if (!editedExercise || !plan) return;
 
-  await fetch("/api/plan/edite", {
+  await fetch("/api/plan/edit", {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

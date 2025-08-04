@@ -143,11 +143,10 @@ export default function EditPlanPage() {
           note: ex.notes,
         })),
       }));
+      console.log(formattedDays);
 
-      const url = planId ? `/api/plan/edite/${planId}` : `/api/plan/new`;
-
-      const res = await fetch(url, {
-        method:"PATCH",
+      const res = await fetch(`/api/plan/edit/${planId}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: planName,
@@ -156,6 +155,7 @@ export default function EditPlanPage() {
           description: planDescription,
         }),
       });
+      console.log(res);
 
       if (!res.ok) throw new Error("Failed to save plan");
 
