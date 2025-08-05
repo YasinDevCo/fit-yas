@@ -1,9 +1,17 @@
 import { connectDB } from "@/lib/mongoose";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { authOptions } from "../../auth/[...nextauth]/route";
 import Plan from "@/models/Plan";
-
+import { Types } from "mongoose";
+import { authOptions } from "@/lib/authOptions";
+interface Exercise {
+  _id: Types.ObjectId;
+  name: string;
+  sets: number;
+  reps: number;
+  weight?: number;
+  note?: string;
+}
 export async function PATCH(req: Request) {
   console.log("patch")
   await connectDB();
@@ -34,7 +42,7 @@ export async function PATCH(req: Request) {
 
     for (const day of plan.days) {
       const idx = day.exercises.findIndex(
-        (ex: any) => ex._id.toString() === exerciseId
+        (ex: Exercise) => ex._id.toString() === exerciseId
       );
       if (idx !== -1) {
         // فقط مقدارهای جدید را جایگزین کن

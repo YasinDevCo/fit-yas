@@ -13,7 +13,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  // DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,8 +48,12 @@ export default function PlanDetailPage() {
   const [openDays, setOpenDays] = useState<Record<string, boolean>>({});
 
   // برای مدال ویرایش تمرین
-  const [editingExercise, setEditingExercise] = useState<IPlanExercises | null>(null);
-  const [editedExercise, setEditedExercise] = useState<IPlanExercises | null>(null);
+  const [editingExercise, setEditingExercise] = useState<IPlanExercises | null>(
+    null
+  );
+  const [editedExercise, setEditedExercise] = useState<IPlanExercises | null>(
+    null
+  );
 
   useEffect(() => {
     if (!id) return;
@@ -65,14 +69,26 @@ export default function PlanDetailPage() {
         }
         const data = await res.json();
 
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayNames = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
 
-        const days = data.plan.days.map((day: { dayOfWeek: number }) => dayNames[day.dayOfWeek]);
+        const days = data.plan.days.map(
+          (day: { dayOfWeek: number }) => dayNames[day.dayOfWeek]
+        );
         const exercises: Record<string, IPlanExercises[]> = {};
 
-        data.plan.days.forEach((day: { dayOfWeek: number; exercises: IPlanExercises[] }) => {
-          exercises[dayNames[day.dayOfWeek]] = day.exercises;
-        });
+        data.plan.days.forEach(
+          (day: { dayOfWeek: number; exercises: IPlanExercises[] }) => {
+            exercises[dayNames[day.dayOfWeek]] = day.exercises;
+          }
+        );
 
         const transformedPlan: IPlan = {
           ...data.plan,
@@ -87,11 +103,12 @@ export default function PlanDetailPage() {
           initialOpenState[day] = false;
         });
         setOpenDays(initialOpenState);
-
-      } catch (err: any) {
-        setError(err.message || "Error fetching plan");
-      } finally {
-        setLoading(false);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Error fetching plan");
+        }
       }
     };
 
@@ -99,7 +116,7 @@ export default function PlanDetailPage() {
   }, [id]);
 
   const toggleDay = (day: string) => {
-    setOpenDays(prev => ({
+    setOpenDays((prev) => ({
       ...prev,
       [day]: !prev[day],
     }));
@@ -118,51 +135,53 @@ export default function PlanDetailPage() {
   };
 
   // ذخیره تغییرات تمرین
-const saveEdit = async () => {
-  if (!editedExercise || !plan) return;
+  const saveEdit = async () => {
+    if (!editedExercise || !plan) return;
 
-  await fetch("/api/plan/edit", {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      planId: plan._id,
-      exerciseId: editedExercise._id,
-      updatedExercise: editedExercise,
-    }),
-  });
+    await fetch("/api/plan/edit", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        planId: plan._id,
+        exerciseId: editedExercise._id,
+        updatedExercise: editedExercise,
+      }),
+    });
 
-  setPlan((prevPlan) => {
-    if (!prevPlan) return prevPlan;
+    setPlan((prevPlan) => {
+      if (!prevPlan) return prevPlan;
 
-    const updatedExercises = { ...prevPlan.exercises };
+      const updatedExercises = { ...prevPlan.exercises };
 
-    let dayKey = "";
-    for (const [day, exercises] of Object.entries(updatedExercises)) {
-      if (exercises.find((e) => e._id === editedExercise._id)) {
-        dayKey = day;
-        break;
+      let dayKey = "";
+      for (const [day, exercises] of Object.entries(updatedExercises)) {
+        if (exercises.find((e) => e._id === editedExercise._id)) {
+          dayKey = day;
+          break;
+        }
       }
-    }
 
-    if (!dayKey) return prevPlan;
+      if (!dayKey) return prevPlan;
 
-    updatedExercises[dayKey] = updatedExercises[dayKey].map((e) =>
-      e._id === editedExercise._id ? editedExercise : e
-    );
+      updatedExercises[dayKey] = updatedExercises[dayKey].map((e) =>
+        e._id === editedExercise._id ? editedExercise : e
+      );
 
-    return {
-      ...prevPlan,
-      exercises: updatedExercises,
-    };
-  });
+      return {
+        ...prevPlan,
+        exercises: updatedExercises,
+      };
+    });
 
-  closeEdit();
-};
+    closeEdit();
+  };
 
-
-  const handleEditChange = (field: keyof IPlanExercises, value: string | number) => {
+  const handleEditChange = (
+    field: keyof IPlanExercises,
+    value: string | number
+  ) => {
     if (!editedExercise) return;
     setEditedExercise({
       ...editedExercise,
@@ -184,7 +203,10 @@ const saveEdit = async () => {
 
   const totalExercises =
     plan.totalExercises ||
-    Object.values(plan.exercises).reduce((sum, exercises) => sum + exercises.length, 0);
+    Object.values(plan.exercises).reduce(
+      (sum, exercises) => sum + exercises.length,
+      0
+    );
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -213,15 +235,21 @@ const saveEdit = async () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-500">{plan.type}</div>
+              <div className="text-2xl font-bold text-orange-500">
+                {plan.type}
+              </div>
               <p className="text-gray-600 text-sm">Plan Type</p>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-500">{totalExercises}</div>
+              <div className="text-2xl font-bold text-blue-500">
+                {totalExercises}
+              </div>
               <p className="text-gray-600 text-sm">Total Exercises</p>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-500">{plan.days.length}</div>
+              <div className="text-2xl font-bold text-green-500">
+                {plan.days.length}
+              </div>
               <p className="text-gray-600 text-sm">Days per Week</p>
             </div>
             <div className="text-center">
@@ -233,7 +261,9 @@ const saveEdit = async () => {
           </div>
 
           <div className="mt-4 p-4 bg-white rounded-lg">
-            <p className="text-gray-700">{plan.description || "No description available."}</p>
+            <p className="text-gray-700">
+              {plan.description || "No description available."}
+            </p>
             <div className="mt-2 flex flex-wrap gap-2">
               <span className="text-xs text-gray-500">
                 Created: {new Date(plan.createdAt).toLocaleDateString()}
@@ -276,10 +306,15 @@ const saveEdit = async () => {
               <CardContent>
                 <div className="space-y-3">
                   {dayExercises.map((exercise) => (
-                    <div key={exercise._id} className="p-4 bg-gray-50 rounded-lg">
+                    <div
+                      key={exercise._id}
+                      className="p-4 bg-gray-50 rounded-lg"
+                    >
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900">{exercise.name}</h4>
+                          <h4 className="font-semibold text-gray-900">
+                            {exercise.name}
+                          </h4>
                           <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
                             <span className="bg-white px-2 py-1 rounded text-xs">
                               {exercise.sets} sets
@@ -300,7 +335,11 @@ const saveEdit = async () => {
                           </div>
                         </div>
                         <div className="flex space-x-2">
-                          <Button size="sm" variant="outline" onClick={() => openEdit(exercise)}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openEdit(exercise)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button size="sm" variant="destructive">
@@ -340,15 +379,17 @@ const saveEdit = async () => {
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="p-4">
           <p className="text-blue-800 text-sm">
-            <strong>Note:</strong> This plan is for viewing and management only. To
-            execute workouts, go to the{" "}
-            <em>Workout section.</em>
+            <strong>Note:</strong> This plan is for viewing and management only.
+            To execute workouts, go to the <em>Workout section.</em>
           </p>
         </CardContent>
       </Card>
 
       {/* Edit Exercise Dialog */}
-      <Dialog open={!!editingExercise} onOpenChange={(open) => !open && closeEdit()}>
+      <Dialog
+        open={!!editingExercise}
+        onOpenChange={(open) => !open && closeEdit()}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Exercise</DialogTitle>
@@ -369,7 +410,9 @@ const saveEdit = async () => {
                   id="sets"
                   type="number"
                   value={editedExercise.sets}
-                  onChange={(e) => handleEditChange("sets", Number(e.target.value))}
+                  onChange={(e) =>
+                    handleEditChange("sets", Number(e.target.value))
+                  }
                 />
               </div>
               <div>
@@ -378,7 +421,9 @@ const saveEdit = async () => {
                   id="reps"
                   type="number"
                   value={editedExercise.reps}
-                  onChange={(e) => handleEditChange("reps", Number(e.target.value))}
+                  onChange={(e) =>
+                    handleEditChange("reps", Number(e.target.value))
+                  }
                 />
               </div>
               <div>
@@ -395,7 +440,9 @@ const saveEdit = async () => {
                   id="restTime"
                   type="number"
                   value={editedExercise.restTime ?? ""}
-                  onChange={(e) => handleEditChange("restTime", Number(e.target.value))}
+                  onChange={(e) =>
+                    handleEditChange("restTime", Number(e.target.value))
+                  }
                 />
               </div>
               <div>
@@ -408,12 +455,14 @@ const saveEdit = async () => {
               </div>
             </div>
           )}
-          <DialogFooter className="flex justify-end space-x-2 mt-4">
+          {/* FIXME: DialogFooter*/}
+
+          <div className="flex justify-end space-x-2 mt-4">
             <Button variant="outline" onClick={closeEdit}>
               Cancel
             </Button>
             <Button onClick={saveEdit}>Save</Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/store/store";
 import {
   fetchProfile,
+  ProfileData,
   setField,
   toggleEditing,
   updateProfile,
@@ -39,7 +40,7 @@ export default function ProfilePage() {
     }
   }, [session, dispatch]);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof ProfileData, value: string) => {
     dispatch(setField({ field, value }));
   };
 
@@ -58,8 +59,12 @@ export default function ProfilePage() {
       toast.textContent = "Profile updated successfully!";
       document.body.appendChild(toast);
       setTimeout(() => document.body.removeChild(toast), 3000);
-    } catch (error: any) {
-      alert(`Error: ${error?.message || "Failed to update profile"}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(`Error: ${error.message}`);
+      } else {
+        alert("Failed to update profile.");
+      }
     }
   };
 

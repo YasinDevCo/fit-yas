@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 
 export default function WorkoutPage() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate] = useState(new Date());
 
   // Get current day in English
   const getCurrentDay = () => {
@@ -125,7 +125,7 @@ console.log("selectedDate:",selectedDate);
             <div>
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center">
                 <Calendar className="mr-3 h-6 w-6 text-orange-500" />
-                Today's Workout - {getCurrentDay()}
+              Toda{"`"}s Workout - {getCurrentDay()}
               </CardTitle>
               <p className="text-gray-600 mt-2 text-lg">
                 {new Date().toLocaleDateString("en-US", {

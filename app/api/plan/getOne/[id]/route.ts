@@ -1,8 +1,8 @@
 import { connectDB } from "@/lib/mongoose";
 import { getServerSession } from "next-auth/next";  // دقت کن مسیر
-import { authOptions } from "../../../auth/[...nextauth]/route";
 import { NextResponse } from "next/server";
 import Plan from "@/models/Plan";
+import { authOptions } from "@/lib/authOptions";
 
 export async function GET(req: Request, context: { params: { id: string } }) {
   await connectDB();
@@ -26,6 +26,7 @@ export async function GET(req: Request, context: { params: { id: string } }) {
 
     return NextResponse.json({ plan });
   } catch (error) {
+        console.error(error);
     return NextResponse.json({ error: "Failed to fetch plan" }, { status: 500 });
   }
 }

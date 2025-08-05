@@ -74,6 +74,7 @@ export default function AuthPage() {
 
       // پس از ثبت‌نام موفق، تب ورود فعال شود
       setActiveTab("login");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Something went wrong");
     }
@@ -95,6 +96,7 @@ export default function AuthPage() {
       } else {
         router.push("/dashboard");
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Something went wrong");
     }

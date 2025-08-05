@@ -2,8 +2,18 @@ import { connectDB } from "@/lib/mongoose";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import Plan from "@/models/Plan";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-
+import { Types } from "mongoose";
+import { authOptions } from "@/lib/authOptions";
+interface Exercise {
+  _id: Types.ObjectId; // ← این درستشه
+  id: number;
+  name: string;
+  sets: string;
+  reps: string;
+  weight?: string;
+  restTime?: string;
+  notes?: string;
+}
 // پارامتر دوم به فانکشن PATCH اضافه می‌شه تا planId از URL استخراج بشه
 export async function PATCH(
   req: Request,
@@ -39,15 +49,20 @@ export async function PATCH(
 
     for (const day of plan.days) {
       const idx = day.exercises.findIndex(
-        (ex: any) => ex._id.toString() === exerciseId
+        (ex: Exercise) => ex._id.toString() === exerciseId
       );
       if (idx !== -1) {
         // فقط مقدارهای جدید را جایگزین کن
-        day.exercises[idx].name = updatedExercise.name || day.exercises[idx].name;
-        day.exercises[idx].sets = updatedExercise.sets || day.exercises[idx].sets;
-        day.exercises[idx].reps = updatedExercise.reps || day.exercises[idx].reps;
-        day.exercises[idx].weight = updatedExercise.weight ?? day.exercises[idx].weight;
-        day.exercises[idx].note = updatedExercise.note ?? day.exercises[idx].note;
+        day.exercises[idx].name =
+          updatedExercise.name || day.exercises[idx].name;
+        day.exercises[idx].sets =
+          updatedExercise.sets || day.exercises[idx].sets;
+        day.exercises[idx].reps =
+          updatedExercise.reps || day.exercises[idx].reps;
+        day.exercises[idx].weight =
+          updatedExercise.weight ?? day.exercises[idx].weight;
+        day.exercises[idx].note =
+          updatedExercise.note ?? day.exercises[idx].note;
 
         found = true;
         break;
@@ -55,7 +70,10 @@ export async function PATCH(
     }
 
     if (!found) {
-      return NextResponse.json({ error: "Exercise not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Exercise not found" },
+        { status: 404 }
+      );
     }
 
     await plan.save();

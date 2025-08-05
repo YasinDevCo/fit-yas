@@ -1,10 +1,10 @@
 import { connectDB } from "@/lib/mongoose";
 import User from "@/models/User";
 import { getToken } from "next-auth/jwt";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });

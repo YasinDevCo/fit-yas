@@ -14,13 +14,21 @@ import {
   Calendar,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-
+interface Exercise {
+  id: number;
+  name: string;
+  sets: string;
+  reps: string;
+  weight?: string;
+  restTime?: string;
+  notes?: string;
+}
 export default function NewPlanPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [workoutType, setWorkoutType] = useState("bodybuilding");
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [exercises, setExercises] = useState<{ [key: string]: any[] }>({});
+  const [exercises, setExercises] = useState<{ [key: string]: Exercise[] }>({});
   const [planName, setPlanName] = useState("");
   const [planDescription, setPlanDescription] = useState("");
 
@@ -530,7 +538,7 @@ export default function NewPlanPage() {
                       <Target className="h-12 w-12 mx-auto mb-3 opacity-50" />
                       <p>No exercises added yet</p>
                       <p className="text-sm">
-                        Click "Add Exercise" to get started
+                        Click &quot;Add Exercise&quot; to get started
                       </p>
                     </div>
                   )}

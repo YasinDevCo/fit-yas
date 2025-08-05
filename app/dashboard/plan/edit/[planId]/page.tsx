@@ -15,6 +15,28 @@ import {
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 
+
+interface Exercise {
+  id: number;
+  name: string;
+  sets: string;
+  reps: string;
+  weight?: string;
+  restTime?: string;
+  notes?: string;
+}
+
+interface PlanDay {
+  dayOfWeek: number;
+  exercises: Exercise[];
+}
+
+interface PlanData {
+  name: string;
+  description?: string;
+  type: string;
+  days: PlanDay[];
+}
 export default function EditPlanPage() {
   const router = useRouter();
   const { planId } = useParams();
@@ -22,10 +44,11 @@ export default function EditPlanPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [workoutType, setWorkoutType] = useState("bodybuilding");
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [exercises, setExercises] = useState<{ [key: string]: any[] }>({});
+  const [exercises, setExercises] = useState<{ [key: string]: Exercise[] }>({});
   const [planName, setPlanName] = useState("");
   const [planDescription, setPlanDescription] = useState("");
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const weekDays = [
     "Monday",
     "Tuesday",
@@ -79,48 +102,45 @@ export default function EditPlanPage() {
     }));
   };
 
-  // 🟡 بارگیری اطلاعات پلن برای حالت ویرایش
-  useEffect(() => {
-    const fetchPlan = async () => {
-      if (!planId) return setLoading(false);
-      try {
-        const res = await fetch(`/api/plan/getOne/${planId}`);
-        if (!res.ok) throw new Error("Failed to fetch plan");
-        console.log(res);
-        const data = await res.json();
-        console.log(data);
-        setPlanName(data.plan.name || "");
-        setPlanDescription(data.plan.description || "");
-        setWorkoutType(data.plan.type || "");
+ useEffect(() => {
+  const fetchPlan = async () => {
+    if (!planId) return setLoading(false);
+    try {
+      const res = await fetch(`/api/plan/getOne/${planId}`);
+      if (!res.ok) throw new Error("Failed to fetch plan");
 
-        const dayNames = data.plan.days.map((d: any) => weekDays[d.dayOfWeek]);
-        setSelectedDays(dayNames);
+      const data: { plan: PlanData } = await res.json();
 
-        const loadedExercises: { [key: string]: any[] } = {};
-        data.plan.days.forEach((day: any) => {
-          const dayName = weekDays[day.dayOfWeek];
-          loadedExercises[dayName] = day.exercises.map(
-            (ex: any, idx: number) => ({
-              id: Date.now() + idx,
-              name: ex.name,
-              sets: ex.sets.toString(),
-              reps: ex.reps.toString(),
-              weight: ex.weight?.toString() || "",
-              restTime: ex.restTime?.toString() || "",
-              notes: ex.note || "",
-            })
-          );
-        });
-        setExercises(loadedExercises);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      setPlanName(data.plan.name || "");
+      setPlanDescription(data.plan.description || "");
+      setWorkoutType(data.plan.type || "");
 
-    fetchPlan();
-  }, [planId]);
+      const dayNames = data.plan.days.map((d) => weekDays[d.dayOfWeek]);
+      setSelectedDays(dayNames);
+
+      const loadedExercises: { [key: string]: Exercise[] } = {};
+      data.plan.days.forEach((day) => {
+        const dayName = weekDays[day.dayOfWeek];
+        loadedExercises[dayName] = day.exercises.map((ex, idx) => ({
+          id: Date.now() + idx,
+          name: ex.name,
+          sets: ex.sets.toString(),
+          reps: ex.reps.toString(),
+          weight: ex.weight?.toString() || "",
+          restTime: ex.restTime?.toString() || "",
+          notes: ex.notes || "",
+        }));
+      });
+      setExercises(loadedExercises);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPlan();
+}, [planId, weekDays]);
 
   const savePlan = async () => {
     const hasExercises = Object.values(exercises).some(
@@ -561,7 +581,7 @@ export default function EditPlanPage() {
                       <Target className="h-12 w-12 mx-auto mb-3 opacity-50" />
                       <p>No exercises added yet</p>
                       <p className="text-sm">
-                        Click "Add Exercise" to get started
+                        Click &quot;Add Exercise&quot; to get started
                       </p>
                     </div>
                   )}

@@ -1,36 +1,31 @@
 import { connectDB } from "@/lib/mongoose";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 import { NextResponse } from "next/server";
 import Plan from "@/models/Plan";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function DELETE(
   req: Request,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   await connectDB();
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const planId = context.params.id;
-
   try {
-    const plan = await Plan.findOne({
-      _id: planId,
-      userId: session.user.id,
-    });
+    const plan = await Plan.findOne({ _id: params.id, userId: session.user.id });
 
     if (!plan) {
-      return NextResponse.json({ error: "Plan not found or access denied" }, { status: 404 });
+      return NextResponse.json({ error: "Not Found" }, { status: 404 });
     }
 
     await plan.deleteOne();
-
-    return NextResponse.json({ message: "Plan deleted successfully" });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to delete plan" }, { status: 500 });
+    return NextResponse.json({ message: "Deleted successfully" });
+  } catch (err) {
+    console.error("DELETE error:", err);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
